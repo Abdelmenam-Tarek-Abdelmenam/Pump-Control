@@ -1,22 +1,49 @@
 import 'package:calender_app/screens/home_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'cubit/cubit.dart';
 
-void main() {
-//  WidgetsFlutterBinding.ensureInitialized();
-//  await Firebase.initializeApp();
-  runApp(const MyApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  bool newNotification = false;
+  Database database = await openDatabase(
+    "notifications.db",
+    version: 1,
+    onCreate: (Database db, int version) async {
+      await db.execute('''CREATE TABLE "notification" (
+                      "id"	INTEGER,
+                      "seen"	INTEGER,
+                      "data"	TEXT,
+                PRIMARY KEY("id" AUTOINCREMENT)
+                );''');
+    },
+  ).catchError((err) {
+    print(err);
+  });
+  try {
+    newNotification =
+        (await database.query("notification", where: "seen=0")).isNotEmpty;
+  } catch (err) {
+    newNotification = false;
+    print(err);
+  }
+
+  runApp(MyApp(newNotification));
 }
 
+// ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp(this.newNotification, {Key? key}) : super(key: key);
+  bool newNotification;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (BuildContext context) => AppCubit(),
+      create: (BuildContext context) => AppCubit()..startApp(newNotification),
       child: const MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Calender APP',
