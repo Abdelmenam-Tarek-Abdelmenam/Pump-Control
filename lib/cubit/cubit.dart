@@ -1,9 +1,12 @@
 import 'package:calender_app/cubit/states.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../modules/event_data.dart';
 import '../shared/messaging/fire_message.dart';
 
 class AppCubit extends Cubit<AppStates> {
@@ -12,10 +15,12 @@ class AppCubit extends Cubit<AppStates> {
 
   final fireBase = FirebaseDatabase.instance.reference();
   late Database database;
-  static bool thereNotification = false;
+  bool thereNotification = false;
+  late List<EventData> eventsData;
 
   Future<void> startApp(bool isNotification) async {
     emit(AppLoadingState());
+    thereNotification = isNotification;
     if (await Permission.notification.request().isGranted) {
       FireNotificationHelper(_notificationCallback);
     }
@@ -35,8 +40,31 @@ class AppCubit extends Cubit<AppStates> {
     ).catchError((err) {
       print(err);
     });
-    thereNotification = isNotification;
+    List<Map<String, dynamic>> tempData = await database.query("data");
+    eventsData = tempData.map((e) => EventData(e)).toList();
     emit(AppReadyState());
+  }
+
+  void saveTask(
+      {required DateTime selectedDay,
+      required TimeOfDay start,
+      required TimeOfDay end,
+      required BuildContext context,
+      String? description}) {
+    String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDay);
+    String formattedStart = start.format(context);
+    String formattedEnd = end.format(context);
+
+    print("date is $formattedDate");
+    print("start at $formattedStart");
+    print("end at $formattedEnd");
+
+    database.insert("data", {
+      "description": description ?? "No description",
+      "date": formattedDate,
+      "startTime": formattedStart,
+      "endTime": formattedEnd,
+    });
   }
 
   _notificationCallback(Map<String, dynamic> notificationData) async {
