@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
+  DateTime now = DateTime.now();
   DateTime? _selectedDay;
 
   @override
@@ -29,6 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
         AppCubit cubit = AppCubit.get(context);
         return Scaffold(
           appBar: AppBar(
+            centerTitle: true,
             title: const Text("Calender Control"),
             actions: [
               IconButton(
@@ -63,8 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       TableCalendar(
-                        firstDay: DateTime.utc(2010, 10, 16),
-                        lastDay: DateTime.utc(2030, 3, 14),
+                        firstDay:
+                            DateTime.utc(now.year - 10, now.month, now.day),
+                        lastDay:
+                            DateTime.utc(now.year + 10, now.month, now.day),
                         focusedDay: _focusedDay,
                         startingDayOfWeek: StartingDayOfWeek.saturday,
                         calendarFormat: _calendarFormat,
@@ -162,28 +166,95 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         OutlinedButton(
             onPressed: () {
-              cubit.saveTask(
-                  selectedDay: date,
-                  start: const TimeOfDay(hour: 2, minute: 30),
-                  end: const TimeOfDay(hour: 1, minute: 20),
-                  context: context,
-                  description: "water low");
-              cubit.startApp(false);
+              TimeOfDay? start;
+              TimeOfDay? end;
+              TextEditingController description = TextEditingController();
+
+              showModalBottomSheet(
+                context: context,
+                builder: (context) => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Text(
+                          "selected Date is ${DateFormat('dd-MM-yyyy').format(date)}"),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Column(
+                            children: [
+                              ElevatedButton(
+                                  onPressed: () async {
+                                    start = await _selectTime(context, start);
+                                  },
+                                  child: const Text("Start time")),
+                              Text(
+                                  "at ${start == null ? "" : start!.format(context)}")
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              ElevatedButton(
+                                  onPressed: () async {
+                                    end = await _selectTime(context, end);
+                                  },
+                                  child: const Text("end time")),
+                              Text(
+                                  "at ${end == null ? "" : end!.format(context)}")
+                            ],
+                          ),
+                        ],
+                      ),
+                      TextFormField(
+                        controller: description,
+                        minLines: 3,
+                        maxLines: 5,
+                        decoration: InputDecoration(
+                          labelText: 'description',
+                          prefixIcon: const Icon(Icons.message_outlined),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(
+                                color: Colors.blue, width: 2.0),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                      OutlinedButton(
+                          onPressed: () {
+                            cubit.saveTask(
+                                selectedDay: date,
+                                start: start!,
+                                end: end!,
+                                context: context,
+                                description: description.text);
+                          },
+                          child: const Text("save"))
+                    ],
+                  ),
+                ),
+              );
             },
             child: const Text("ADD Task"))
       ],
     );
   }
 
-  Future<void> _selectTime(BuildContext context) async {
-    TimeOfDay initialTime = TimeOfDay.now();
-
+  Future<TimeOfDay?> _selectTime(
+      BuildContext context, TimeOfDay? initialTime) async {
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: initialTime,
+      initialTime: initialTime ?? TimeOfDay.now(),
     );
-    if (pickedTime != null) {
-      print(pickedTime.format(context));
-    }
+    return pickedTime;
   }
+
+  // LiquidCircularProgressIndicator(
+//   value: 0.25,
+//   valueColor: AlwaysStoppedAnimation(Colors.pink), // Defaults to the current Theme's accentColor.
+//   backgroundColor: Colors.white,
+//   borderColor: Colors.blue,
+//   borderWidth: 5.0,
+//   direction: Axis.vertical,
+//   center: Text("Tank ${0.25} %"),
+// );
 }

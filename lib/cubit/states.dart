@@ -9,3 +9,5 @@ class AppLoadingState extends AppStates {}
 class AppReadyState extends AppStates {}
 
 class NewNotificationCome extends AppStates {}
+
+class AddTaskState extends AppStates {}
