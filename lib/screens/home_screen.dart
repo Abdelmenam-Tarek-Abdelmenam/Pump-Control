@@ -106,11 +106,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     cubit.setState();
                     _refreshController.refreshCompleted();
                   },
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 30,),
-                        SizedBox(
+                  child: Wrap(
+                    alignment: WrapAlignment.center,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: SizedBox(
                           width: 200,height: 200,
                           child: LiquidCircularProgressIndicator(
                             value: percentage/100,
@@ -126,13 +128,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontWeight: FontWeight.w900),),
                           ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-
-                        dayTasks(cubit, _selectedDay ?? DateTime.now())
-                      ],
-                    ),
+                      ),
+                      SizedBox(
+                          width: 400,
+                          child: dayTasks(cubit, _selectedDay ?? DateTime.now()))
+                    ],
                   ),
                 ),
         );
