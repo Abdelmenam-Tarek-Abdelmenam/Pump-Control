@@ -23,6 +23,7 @@ dependencies:
   table_calendar: ^3.0.4
   pull_to_refresh: ^2.0.0
   liquid_progress_indicator: ^0.4.0
+  wave: ^0.2.0
   fluttertoast: ^8.0.8
 
 # firebase

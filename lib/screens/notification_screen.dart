@@ -39,13 +39,17 @@ class _NotificationPageState extends State<NotificationPage> {
           _readData();
         }
         return Scaffold(
+          backgroundColor: Colors.white,
           appBar: AppBar(
+            elevation: 0,
+            foregroundColor: Colors.blue,
+            backgroundColor: Colors.white,
             title: const Text(
               'Notifications',
               style: TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
+                  //fontSize: 25,
+                  //fontWeight: FontWeight.bold,
+                  color: Colors.blue),
             ),
             actions: [
               IconButton(
@@ -54,7 +58,7 @@ class _NotificationPageState extends State<NotificationPage> {
                   },
                   icon: const Icon(
                     Icons.delete,
-                    color: Colors.white,
+                    color: Colors.blue,
                   ))
             ],
           ),
@@ -71,7 +75,7 @@ class _NotificationPageState extends State<NotificationPage> {
                               Icon(Icons.notifications_off_outlined,
                                   size: 60, color: Colors.grey),
                               Text(
-                                "There is no notifications to show",
+                                "There is No Notifications to Show",
                                 style: TextStyle(color: Colors.grey),
                               ),
                               SizedBox(
