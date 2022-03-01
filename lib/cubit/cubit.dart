@@ -41,43 +41,43 @@ class AppCubit extends Cubit<AppStates> {
       print(err);
     });
     List<Map<String, dynamic>> tempData = await database.query("data");
-    eventsData = tempData.map((e) => EventData(e)).toList();
+    eventsData = tempData.map((e) => EventData(e, this)).toList();
     emit(AppReadyState());
   }
 
-  void saveTask(
+  Future<void> saveTask(
       {required DateTime selectedDay,
       required TimeOfDay start,
       required TimeOfDay end,
       required BuildContext context,
-      String? description}) {
+      String? description}) async {
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDay);
     String formattedStart = start.format(context);
     String formattedEnd = end.format(context);
     description = description == "" ? null : description;
-    print("date is $formattedDate");
-    print("start at $formattedStart");
-    print("end at $formattedEnd");
+
     Map<String, dynamic> rowData = {
       "description": description ?? "No description",
       "date": formattedDate,
       "startTime": formattedStart,
       "endTime": formattedEnd,
     };
-    database.insert("data", rowData);
+    var id = await database.insert("data", rowData);
+    rowData["id"] = id;
+    eventsData.add(EventData(rowData, this));
+    Navigator.pop(context);
 
-    eventsData.add(EventData(rowData));
     emit(AddTaskState());
   }
 
-  void editTask(
+  Future<void> editTask(
       {required DateTime selectedDay,
       required TimeOfDay start,
       required TimeOfDay end,
       required BuildContext context,
       required int index,
       required int id,
-      String? description}) {
+      String? description}) async {
     String formattedDate = DateFormat('yyyy-MM-dd').format(selectedDay);
     String formattedStart = start.format(context);
     String formattedEnd = end.format(context);
@@ -87,11 +87,29 @@ class AppCubit extends Cubit<AppStates> {
       "date": formattedDate,
       "startTime": formattedStart,
       "endTime": formattedEnd,
+      "id": id
     };
-    database.update("data", rowData, where: "id=$id");
+    await database.update("data", rowData, where: "id=$id");
+    List<Map<String, dynamic>> tempData = await database.query("data");
+    eventsData = tempData.map((e) => EventData(e, this)).toList();
 
-    eventsData[index] = (EventData(rowData));
+    Navigator.pop(context);
     emit(AddTaskState());
+  }
+
+  Future<void> deleteTask(
+      {required int index, required int id, String? description}) async {
+    await database.delete("data", where: "id=$id");
+    List<Map<String, dynamic>> tempData = await database.query("data");
+    eventsData = tempData.map((e) => EventData(e, this)).toList();
+    emit(AddTaskState());
+  }
+
+  int differentTimeMinutes(TimeOfDay st, TimeOfDay en) {
+    int startMinutes = (st.hour * 60 + st.minute);
+    int endMinutes = (en.hour * 60 + en.minute);
+    int difInMinutes = endMinutes - startMinutes;
+    return difInMinutes;
   }
 
   _notificationCallback(Map<String, dynamic> notificationData) async {
