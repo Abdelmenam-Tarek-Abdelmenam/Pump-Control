@@ -381,6 +381,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// force stop now
+  //  cubit.editTask(
+  //                             selectedDay: date,
+  //                             start: event.startTime,
+  //                             end: TimeOfDay.now(),
+  //                             context: context,
+  //                             index: index,
+  //                             id: event.id);
   Widget waterTank(double percentage) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10.0),
