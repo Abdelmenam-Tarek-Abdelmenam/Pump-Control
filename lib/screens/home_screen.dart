@@ -163,66 +163,64 @@ class _HomeScreenState extends State<HomeScreen> {
     List<EventData> data = cubit.eventsData
         .where((EventData element) => isSameDay(date, element.day))
         .toList();
+    Duration diff = date.difference(now);
+    int daysLeft = diff.inDays;
+    if (daysLeft == 0 || !diff.isNegative) {
+      if (isSameDay(now, date)) {
+        daysLeft = 0;
+      } else {
+        daysLeft++;
+      }
+    }
+    print(daysLeft);
 
-    int daysLeft = date.difference(now).inDays;
-    int leftHours = date.difference(DateTime.now()).inHours;
-    print(daysLeft);
-    daysLeft = (leftHours < 0 && daysLeft <= 0) ? daysLeft - 1 : daysLeft;
-    daysLeft++;
-    print(daysLeft);
     return Container(
       color: const Color(0xffECECEC),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Container(
-              height: 30,
-              decoration: BoxDecoration(
-                  color: Colors.black45,
-                  borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  const Text(
-                    'Tasks',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white),
-                  ),
-                  Text(
-                    DateFormat('dd-MM-yyyy').format(date),
-                    style: const TextStyle(
-                        //fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white),
-                  ),
-                  DefaultTextStyle(
-                    style: const TextStyle(
-                        color: Colors.white,
-                        //fontWeight: FontWeight.bold,
-                        fontSize: 18),
-                    child: daysLeft == 0
-                        ? const Text(
-                            "[ Today ]",
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text("[ "),
-                              Text(
-                                "${daysLeft.abs()}",
-                              ),
-                              const Text(' Day'),
-                              Text(daysLeft.abs() == 1 ? "" : "s"),
-                              Text(
-                                  ' ${daysLeft.isNegative ? "pass" : "left"} ]'),
-                            ],
-                          ),
-                  )
-                ],
-              ),
+          Container(
+            height: 30,
+            decoration: const BoxDecoration(color: Colors.black45),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  'Tasks',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white),
+                ),
+                Text(
+                  DateFormat('dd-MM-yyyy').format(date),
+                  style: const TextStyle(
+                      //fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white),
+                ),
+                DefaultTextStyle(
+                  style: const TextStyle(
+                      color: Colors.white,
+                      //fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                  child: daysLeft == 0
+                      ? const Text(
+                          "[ Today ]",
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("[ "),
+                            Text(
+                              "${daysLeft.abs()}",
+                            ),
+                            const Text(' Day'),
+                            Text(daysLeft.abs() == 1 ? "" : "s"),
+                            Text(' ${daysLeft.isNegative ? "pass" : "left"} ]'),
+                          ],
+                        ),
+                )
+              ],
             ),
           ),
           const SizedBox(

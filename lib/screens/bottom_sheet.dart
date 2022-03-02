@@ -3,6 +3,7 @@ import 'package:calender_app/reusable/reusable_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
@@ -31,9 +32,9 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
   late int daysLeft;
 
   _BottomSheetLayoutState(this.date) {
-    daysLeft = date.difference(DateTime.now()).inDays;
-    int leftHours = date.difference(DateTime.now()).inHours;
-    daysLeft = leftHours < 0 ? -1 : daysLeft;
+    DateTime now = DateTime.now();
+    daysLeft = date.difference(now).inDays;
+    daysLeft = isSameDay(now, date) ? -1 : daysLeft;
     daysLeft++;
 
     WidgetsBinding.instance!.addPostFrameCallback((_) {
@@ -260,7 +261,7 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        differenceTimeWidget(),
+                        differenceTimeWidget(cubit),
                         daysLeft == 0 && start != null
                             ? cubit.differentTimeMinutes(
                                         TimeOfDay.now(), start!) <
@@ -276,16 +277,14 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                                     children: [
                                       const Text("Start in "),
                                       Text(
-                                        cubit
-                                            .differentTimeMinutes(
-                                                TimeOfDay.now(), start!)
-                                            .toString(),
+                                        cubit.minutesFormatted(
+                                            cubit.differentTimeMinutes(
+                                                TimeOfDay.now(), start!)),
                                         style: const TextStyle(
                                             color: Colors.blue,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 15),
                                       ),
-                                      const Text(" min"),
                                     ],
                                   )
                             : Container(),
@@ -347,7 +346,7 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
     );
   }
 
-  Widget differenceTimeWidget() {
+  Widget differenceTimeWidget(AppCubit cubit) {
     return differentTime == null
         ? Container()
         : differentTime! <= 0
@@ -364,13 +363,12 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                 children: [
                   const Text("Duration  : "),
                   Text(
-                    "$differentTime",
+                    cubit.minutesFormatted(differentTime!),
                     style: const TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                         fontSize: 15),
                   ),
-                  const Text(" min"),
                 ],
               );
   }
