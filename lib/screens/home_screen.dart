@@ -1,12 +1,12 @@
 import 'package:calender_app/modules/event_data.dart';
 import 'package:calender_app/screens/notification_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:liquid_progress_indicator/liquid_progress_indicator.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:table_calendar/table_calendar.dart';
-
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
 import '../reusable/reusable_functions.dart';
@@ -24,8 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime now = DateTime.now();
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   DateTime? _selectedDay;
-  final RefreshController _refreshController =
-      RefreshController(initialRefresh: false);
+  final RefreshController _refreshController = RefreshController(initialRefresh: false);
+  double percentage = 50;
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
           appBar: AppBar(
             elevation: 0,
             backgroundColor: Colors.white,
-            //centerTitle: true,
             title: const Text(
               "Pump Tasks",
               style: TextStyle(color: Colors.blue),
             ),
             actions: [
+              waterTank(percentage),
               IconButton(
                 iconSize: 30,
                 onPressed: () {
@@ -74,24 +74,21 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          bottomNavigationBar: newDate
-              ? ElevatedButton.icon(
-                  label: const Text('ADD Progress'),
-                  icon: const Icon(Icons.add),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      barrierColor: Colors.white.withOpacity(0.8),
-                      elevation: 20,
-                      isScrollControlled: true,
-                      constraints: const BoxConstraints(maxHeight: 650),
-                      backgroundColor: Colors.white,
-                      builder: (context) => BottomSheetLayout(
-                          _selectedDay ?? now, false, null, null),
-                    );
-                  },
-                )
-              : null,
+          floatingActionButton: newDate? FloatingActionButton(
+            onPressed: (){
+              showModalBottomSheet(
+              context: context,
+              barrierColor: Colors.white.withOpacity(0.8),
+              elevation: 20,
+              isScrollControlled: true,
+              //constraints: const BoxConstraints(maxHeight: 650),
+              backgroundColor: Colors.white,
+              builder: (context) => BottomSheetLayout(
+                  _selectedDay ?? now, false, null, null),
+            );
+            },
+            child: const Icon(Icons.add,size: 40,),
+          ) : null,
           body: state is AppLoadingState
               ? const Center(child: CircularProgressIndicator())
               : SmartRefresher(
@@ -108,39 +105,47 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        TableCalendar(
-                          firstDay:
-                              DateTime.utc(now.year - 1, now.month, now.day),
-                          lastDay:
-                              DateTime.utc(now.year + 1, now.month, now.day),
-                          focusedDay: _focusedDay,
-                          startingDayOfWeek: StartingDayOfWeek.saturday,
-                          calendarFormat: CalendarFormat.month,
-                          calendarStyle: const CalendarStyle(
-                            outsideDaysVisible: false,
+                        Container(
+                          color: const Color(0xffECECEC),
+                          child: TableCalendar(
+                            headerStyle: const HeaderStyle(
+                                titleCentered: true,
+                              formatButtonVisible: false
+                            ),
+
+                            firstDay: DateTime.utc(now.year - 1, now.month, now.day),
+                            lastDay: DateTime.utc(now.year + 1, now.month, now.day),
+                            focusedDay: _focusedDay,
+                            startingDayOfWeek: StartingDayOfWeek.saturday,
+                            calendarFormat: CalendarFormat.month,
+
+                            calendarStyle:    const CalendarStyle(
+                              outsideDaysVisible: false,
+                               markerDecoration: BoxDecoration(color: Colors.black,shape: BoxShape.circle),
+                               selectedDecoration: BoxDecoration(color: Colors.blue,shape: BoxShape.circle),
+                               todayDecoration: BoxDecoration(color: Colors.blueGrey,shape: BoxShape.circle),
+                            ),
+
+                            eventLoader: (DateTime date) {
+                              return cubit.eventsData
+                                  .where((EventData element) =>
+                                      isSameDay(date, element.day))
+                                  .toList();
+                            },
+                            selectedDayPredicate: (day) =>
+                                isSameDay(_selectedDay, day),
+                            onDaySelected: (selectedDay, focusedDay) {
+                              if (!isSameDay(_selectedDay, selectedDay)) {
+                                setState(() {
+                                  _selectedDay = selectedDay;
+                                  _focusedDay = focusedDay;
+                                });
+                              }
+                            },
+                            onPageChanged: (focusedDay) {
+                              _focusedDay = focusedDay;
+                            },
                           ),
-                          eventLoader: (DateTime date) {
-                            return cubit.eventsData
-                                .where((EventData element) =>
-                                    isSameDay(date, element.day))
-                                .toList();
-                          },
-                          selectedDayPredicate: (day) =>
-                              isSameDay(_selectedDay, day),
-                          onDaySelected: (selectedDay, focusedDay) {
-                            if (!isSameDay(_selectedDay, selectedDay)) {
-                              setState(() {
-                                _selectedDay = selectedDay;
-                                _focusedDay = focusedDay;
-                              });
-                            }
-                          },
-                          onPageChanged: (focusedDay) {
-                            _focusedDay = focusedDay;
-                          },
-                        ),
-                        const SizedBox(
-                          height: 20,
                         ),
                         dayTasks(cubit, _selectedDay ?? DateTime.now())
                       ],
@@ -153,58 +158,62 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget dayTasks(AppCubit cubit, DateTime date) {
-    List<EventData> data = cubit.eventsData
-        .where((EventData element) => isSameDay(date, element.day))
-        .toList();
+    List<EventData> data = cubit.eventsData.where((EventData element) => isSameDay(date, element.day)).toList();
 
     int daysLeft = now.difference(date).inDays;
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              "Selected Date is ",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Container(
+            height: 30,
+            decoration: BoxDecoration(
+                color: Colors.black45,
+                borderRadius: BorderRadius.circular(10)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                const Text(
+                  'Tasks',
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white),
+                ),
+                Text(
+                  DateFormat('dd-MM-yyyy').format(date),
+                  style: const TextStyle(
+                      //fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white),
+                ),
+                DefaultTextStyle(
+                  style: const TextStyle(
+                    color: Colors.white,
+                    //fontWeight: FontWeight.bold,
+                    fontSize: 18),
+                    child: daysLeft == 0?
+                    const Text(
+                      "[ Today ]",
+                    )
+                        :
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("[ "),
+                        Text(
+                          "${daysLeft.abs()}",
+                        ),
+                        const Text(' Day'),
+                        Text(daysLeft.abs() == 1? "":"s" ),
+                        const Text(' left ]'),
+                      ],
+                    ),)
+              ],
             ),
-            Text(
-              DateFormat('dd-MM-yyyy').format(date),
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.blue),
-            )
-          ],
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        if (daysLeft == 0)
-          const Text(
-            "Date is Today",
-            style: TextStyle(
-                color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 15),
-          )
-        else
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("days left : "),
-              Text(
-                "${daysLeft.abs()}",
-                style: const TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15),
-              )
-            ],
           ),
-        const SizedBox(
-          height: 10,
         ),
+        const SizedBox(height: 10,),
         data.isEmpty
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -224,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 physics: const NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   EventData event = data[index];
-
                   String formattedStart = event.startTime.format(context);
                   String formattedEnd = event.endTime.format(context);
 
@@ -275,6 +283,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: ListTile(
+                        onTap: (){
+                          if(event.state == EventState.waiting){
+                            showModalBottomSheet(
+                              context: context,
+                              barrierColor: Colors.white.withOpacity(0.8),
+                              elevation: 20,
+                              isScrollControlled: true,
+                              //constraints: const BoxConstraints(maxHeight: 650),
+                              backgroundColor: Colors.white,
+                              builder: (context) => BottomSheetLayout(
+                                  event.day, true, index, event),
+                            );
+                          }
+                          },
                         tileColor: {
                           EventState.running: Colors.blue.withOpacity(0.3),
                           EventState.waiting: Colors.white.withOpacity(0.5),
@@ -284,24 +306,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         leading: CircleAvatar(
                           child: Text("${index + 1}"),
                         ),
-                        trailing: SizedBox(
-                          width: event.state == EventState.waiting ? 40 : 0,
-                          child: event.state == EventState.waiting
-                              ? IconButton(
-                                  icon: const Icon(Icons.expand_less),
-                                  onPressed: () => showModalBottomSheet(
-                                        context: context,
-                                        builder: (context) => BottomSheetLayout(
-                                            event.day, true, index, event),
-                                      ))
-                              : Container(),
-                        ),
+
                         title: Text(event.description),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                "Start at $formattedStart end at $formattedEnd"),
+                                "Start at $formattedStart End at $formattedEnd"),
                             Row(
                               children: [
                                 const Text("Duration : "),
@@ -391,22 +402,22 @@ class _HomeScreenState extends State<HomeScreen> {
   //                             id: event.id);
   Widget waterTank(double percentage) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.all(10),
       child: SizedBox(
-        width: 200,
-        height: 200,
-        child: LiquidCircularProgressIndicator(
+        width: 90,
+        //height: 60,
+        child: LiquidLinearProgressIndicator(
           value: percentage / 100,
-          valueColor: const AlwaysStoppedAnimation(Colors.blue),
+          valueColor: const AlwaysStoppedAnimation(Color(0xff85F4FF)),
           backgroundColor: Colors.white,
           borderColor: Colors.blue,
           borderWidth: 1.0,
           direction: Axis.vertical,
           center: Text(
-            "$percentage%",
-            style: TextStyle(
-                fontSize: 50,
-                color: const Color(0xff362222).withOpacity(0.7),
+            "${percentage.round()}%",
+            style: const TextStyle(
+                fontSize: 20,
+                color:  Colors.blue,
                 fontWeight: FontWeight.w900),
           ),
         ),

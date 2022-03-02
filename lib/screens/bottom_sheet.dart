@@ -58,55 +58,101 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
             }
           },
           child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Selected Date is ",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                    ),
-                    Text(
-                      DateFormat('dd-MM-yyyy').format(date),
-                      style: const TextStyle(
+            child: Padding(
+              padding:  EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:  [
+                    const Text('Add Task To  ',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                      Text(
+                        DateFormat('dd-MM-yyyy').format(date),
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: Colors.blue),
+                          fontSize: 20,
+                          color: Colors.blue
+                        ),
+                      )
+                    ],
+                  ),
+                  if (daysLeft == 0)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text(
+                          "Today",
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),
+                        ),
+                      ],
                     )
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(15.0),
-                  child: TextFormField(
-                    controller: description,
-                    minLines: 4,
-                    maxLines: 6,
-                    decoration: InputDecoration(
-                      labelText: 'description',
-                      prefixIcon: const Icon(Icons.message_outlined),
-                      enabledBorder: OutlineInputBorder(
-                        borderSide:
-                            const BorderSide(color: Colors.blue, width: 2.0),
-                        borderRadius: BorderRadius.circular(10),
+                  else
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Days left : ",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),),
+                        Text(
+                          "$daysLeft",
+                          style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18),
+                        )
+                      ],
+                    ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: TextFormField(
+                      controller: description,
+                      minLines: 4,
+                      maxLines: 6,
+                      decoration: InputDecoration(
+                        labelText: 'description',
+                        prefixIcon: const Icon(Icons.message_outlined),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide:
+                              const BorderSide(color: Colors.blue, width: 2.0),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      children: [
-                        OutlinedButton.icon(
-                            onPressed: () async {
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        height: 60,
+                        child: AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 400),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return ScaleTransition(scale: animation, child: child);
+                          },
+                          child: start == null ? OutlinedButton.icon(
+                              onPressed: () async {
+                                start = await _selectTime(context, start);
+                                if (end != null) {
+                                  differentTime =
+                                      cubit.differentTimeMinutes(start!, end!);
+                                }
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.timer_outlined),
+                              label: const Text("Start Time")):
+                          InkWell(
+                            onTap: () async {
                               start = await _selectTime(context, start);
                               if (end != null) {
                                 differentTime =
@@ -114,18 +160,44 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                               }
                               setState(() {});
                             },
-                            icon: const Icon(Icons.timer_outlined),
-                            label: const Text("Start time")),
-                        Text(
-                          start == null ? "" : start!.format(context),
-                          style: const TextStyle(color: Colors.blue),
-                        )
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        OutlinedButton.icon(
-                            onPressed: () async {
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(border: Border.all(width: 1,color: Colors.blue) ,borderRadius: BorderRadius.circular(10)),
+                              child: Column(
+                                children: [
+                                  const Text('Start Time',style: TextStyle(fontSize: 18),),
+                                  Text(
+                                    start!.format(context),
+                                    style: const TextStyle(color: Colors.blue,fontSize: 18,fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(
+                        width: 150,
+                        height: 60,
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder: (Widget child, Animation<double> animation) {
+                            return ScaleTransition(scale: animation, child: child);
+                          },
+                          child: end == null ? OutlinedButton.icon(
+                              onPressed: () async {
+                                end = await _selectTime(context, end);
+                                if (start != null) {
+                                  differentTime =
+                                      cubit.differentTimeMinutes(start!, end!);
+                                }
+                                setState(() {});
+                              },
+                              icon: const Icon(Icons.timer_off_outlined),
+                              label: const Text("end time")):
+                          InkWell(
+                            onTap: () async {
                               end = await _selectTime(context, end);
                               if (start != null) {
                                 differentTime =
@@ -133,112 +205,100 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                               }
                               setState(() {});
                             },
-                            icon: const Icon(Icons.timer_off_outlined),
-                            label: const Text("end time")),
-                        Text(
-                          end == null ? "" : end!.format(context),
-                          style: const TextStyle(color: Colors.blue),
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: differentTime == null ? 0 : 10,
-                      ),
-                      differenceTimeWidget(),
-                      SizedBox(
-                        height: differentTime == null ? 0 : 10,
-                      ),
-                      if (daysLeft == 0)
-                        const Text(
-                          "Date is Today",
-                          style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),
-                        )
-                      else
-                        Row(
-                          children: [
-                            const Text("days left : "),
-                            Text(
-                              "$daysLeft",
-                              style: const TextStyle(
-                                  color: Colors.blue,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15),
-                            )
-                          ],
+                            child: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(border: Border.all(width: 1,color: Colors.blue) ,borderRadius: BorderRadius.circular(10)),
+                              child: Column(
+                                children: [
+                                  const Text('End Time',style: TextStyle(fontSize: 18),),
+                                  Text(end!.format(context), style: const TextStyle(color: Colors.blue,fontSize: 18,fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                      SizedBox(
-                        height: (daysLeft == 0 && start != null) ? 10 : 0,
                       ),
-                      daysLeft == 0 && start != null
-                          ? cubit.differentTimeMinutes(
-                                      TimeOfDay.now(), start!) <
-                                  0
-                              ? const Text(
-                                  "invalid start",
-                                  style: TextStyle(
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15),
-                                )
-                              : Text(
-                                  "left ${cubit.differentTimeMinutes(TimeOfDay.now(), start!)} minute to work")
-                          : Container(),
+
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                      onPressed: () {
-                        if (start == null || end == null) {
-                          errorToast("Time can't be empty");
-                        } else if (cubit.differentTimeMinutes(start!, end!) <=
-                            0) {
-                          infoToast("End time can't be before start");
-                        } else if (daysLeft == 0 &&
-                            cubit.differentTimeMinutes(
-                                    TimeOfDay.now(), start!) <=
+                  Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        differenceTimeWidget(),
+                        daysLeft == 0 && start != null
+                            ? cubit.differentTimeMinutes(
+                                        TimeOfDay.now(), start!) <
+                                    0
+                                ? const Text(
+                                    "invalid start",
+                                    style: TextStyle(
+                                        color: Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                  )
+                                : Row(children: [
+                          const Text("Start in "),
+                          Text(cubit.differentTimeMinutes(TimeOfDay.now(), start!).toString(),style: const TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15),),
+                          const Text(" min"),
+
+                        ],)
+                            : Container(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                          onPressed: () {
+                            if (start == null || end == null) {
+                              errorToast("Time can't be empty");
+                            } else if (cubit.differentTimeMinutes(start!, end!) <=
                                 0) {
-                          errorToast("Start Time invalid");
-                        } else {
-                          if (widget.edit) {
-                            cubit.editTask(
-                                selectedDay: date,
-                                start: start!,
-                                end: end!,
-                                context: context,
-                                description: description.text,
-                                id: widget.eventData!.id,
-                                index: widget.index!);
-                          } else {
-                            cubit.saveTask(
-                                selectedDay: date,
-                                start: start!,
-                                end: end!,
-                                context: context,
-                                description: description.text);
-                          }
-                        }
-                      },
-                      child: Text(
-                        widget.edit ? "Edit" : "Save",
-                        style: const TextStyle(fontSize: 18),
-                      )),
-                ),
-              ],
+                              infoToast("End time can't be before start");
+                            } else if (daysLeft == 0 &&
+                                cubit.differentTimeMinutes(
+                                        TimeOfDay.now(), start!) <=
+                                    0) {
+                              errorToast("Start Time invalid");
+                            } else {
+                              if (widget.edit) {
+                                cubit.editTask(
+                                    selectedDay: date,
+                                    start: start!,
+                                    end: end!,
+                                    context: context,
+                                    description: description.text,
+                                    id: widget.eventData!.id,
+                                    index: widget.index!);
+                              } else {
+                                cubit.saveTask(
+                                    selectedDay: date,
+                                    start: start!,
+                                    end: end!,
+                                    context: context,
+                                    description: description.text);
+                              }
+                            }
+                          },
+                          child: Text(
+                            widget.edit ? "Edit" : "Save",
+                            style: const TextStyle(fontSize: 18),
+                          )),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -261,14 +321,15 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
               )
             : Row(
                 children: [
-                  const Text("Duration in minutes : "),
+                  const Text("Duration  : "),
                   Text(
                     "$differentTime",
                     style: const TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.bold,
                         fontSize: 15),
-                  )
+                  ),
+                  const Text(" min"),
                 ],
               );
   }
