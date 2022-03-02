@@ -32,6 +32,10 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
 
   _BottomSheetLayoutState(this.date) {
     daysLeft = date.difference(DateTime.now()).inDays;
+    int leftHours = date.difference(DateTime.now()).inHours;
+    daysLeft = leftHours < 0 ? -1 : daysLeft;
+    daysLeft++;
+
     WidgetsBinding.instance!.addPostFrameCallback((_) {
       if (widget.edit) {
         start = widget.eventData!.startTime;
@@ -59,7 +63,8 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
           },
           child: SingleChildScrollView(
             child: Padding(
-              padding:  EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -68,15 +73,18 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children:  [
-                    const Text('Add Task To  ',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20),),
+                    children: [
+                      const Text(
+                        'Add Task To  ',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 20),
+                      ),
                       Text(
                         DateFormat('dd-MM-yyyy').format(date),
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.blue
-                        ),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.blue),
                       )
                     ],
                   ),
@@ -97,10 +105,11 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text("Days left : ",
+                        const Text(
+                          "Days left : ",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18),),
+                              fontWeight: FontWeight.bold, fontSize: 18),
+                        ),
                         Text(
                           "$daysLeft",
                           style: const TextStyle(
@@ -110,7 +119,6 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                         )
                       ],
                     ),
-
                   Padding(
                     padding: const EdgeInsets.all(15.0),
                     child: TextFormField(
@@ -128,7 +136,6 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                       ),
                     ),
                   ),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -136,90 +143,116 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                         width: 150,
                         height: 60,
                         child: AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 400),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return ScaleTransition(scale: animation, child: child);
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                                scale: animation, child: child);
                           },
-                          child: start == null ? OutlinedButton.icon(
-                              onPressed: () async {
-                                start = await _selectTime(context, start);
-                                if (end != null) {
-                                  differentTime =
-                                      cubit.differentTimeMinutes(start!, end!);
-                                }
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.timer_outlined),
-                              label: const Text("Start Time")):
-                          InkWell(
-                            onTap: () async {
-                              start = await _selectTime(context, start);
-                              if (end != null) {
-                                differentTime =
-                                    cubit.differentTimeMinutes(start!, end!);
-                              }
-                              setState(() {});
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(border: Border.all(width: 1,color: Colors.blue) ,borderRadius: BorderRadius.circular(10)),
-                              child: Column(
-                                children: [
-                                  const Text('Start Time',style: TextStyle(fontSize: 18),),
-                                  Text(
-                                    start!.format(context),
-                                    style: const TextStyle(color: Colors.blue,fontSize: 18,fontWeight: FontWeight.bold),
+                          child: start == null
+                              ? OutlinedButton.icon(
+                                  onPressed: () async {
+                                    start = await _selectTime(context, start);
+                                    if (end != null) {
+                                      differentTime = cubit
+                                          .differentTimeMinutes(start!, end!);
+                                    }
+                                    setState(() {});
+                                  },
+                                  icon: const Icon(Icons.timer_outlined),
+                                  label: const Text("Start Time"))
+                              : InkWell(
+                                  onTap: () async {
+                                    start = await _selectTime(context, start);
+                                    if (end != null) {
+                                      differentTime = cubit
+                                          .differentTimeMinutes(start!, end!);
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 1, color: Colors.blue),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Column(
+                                      children: [
+                                        const Text(
+                                          'Start Time',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                        Text(
+                                          start!.format(context),
+                                          style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
                         ),
                       ),
-
                       SizedBox(
                         width: 150,
                         height: 60,
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 400),
-                          transitionBuilder: (Widget child, Animation<double> animation) {
-                            return ScaleTransition(scale: animation, child: child);
+                          transitionBuilder:
+                              (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                                scale: animation, child: child);
                           },
-                          child: end == null ? OutlinedButton.icon(
-                              onPressed: () async {
-                                end = await _selectTime(context, end);
-                                if (start != null) {
-                                  differentTime =
-                                      cubit.differentTimeMinutes(start!, end!);
-                                }
-                                setState(() {});
-                              },
-                              icon: const Icon(Icons.timer_off_outlined),
-                              label: const Text("End time")):
-                          InkWell(
-                            onTap: () async {
-                              end = await _selectTime(context, end);
-                              if (start != null) {
-                                differentTime =
-                                    cubit.differentTimeMinutes(start!, end!);
-                              }
-                              setState(() {});
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(border: Border.all(width: 1,color: Colors.blue) ,borderRadius: BorderRadius.circular(10)),
-                              child: Column(
-                                children: [
-                                  const Text('End Time',style: TextStyle(fontSize: 18),),
-                                  Text(end!.format(context), style: const TextStyle(color: Colors.blue,fontSize: 18,fontWeight: FontWeight.bold),
+                          child: end == null
+                              ? OutlinedButton.icon(
+                                  onPressed: () async {
+                                    end = await _selectTime(context, end);
+                                    if (start != null) {
+                                      differentTime = cubit
+                                          .differentTimeMinutes(start!, end!);
+                                    }
+                                    setState(() {});
+                                  },
+                                  icon: const Icon(Icons.timer_off_outlined),
+                                  label: const Text("End time"))
+                              : InkWell(
+                                  onTap: () async {
+                                    end = await _selectTime(context, end);
+                                    if (start != null) {
+                                      differentTime = cubit
+                                          .differentTimeMinutes(start!, end!);
+                                    }
+                                    setState(() {});
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            width: 1, color: Colors.blue),
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    child: Column(
+                                      children: [
+                                        const Text(
+                                          'End Time',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                        Text(
+                                          end!.format(context),
+                                          style: const TextStyle(
+                                              color: Colors.blue,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            ),
-                          ),
+                                ),
                         ),
                       ),
-
                     ],
                   ),
                   Padding(
@@ -239,15 +272,22 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
                                   )
-                                : Row(children: [
-                          const Text("Start in "),
-                          Text(cubit.differentTimeMinutes(TimeOfDay.now(), start!).toString(),style: const TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15),),
-                          const Text(" min"),
-
-                        ],)
+                                : Row(
+                                    children: [
+                                      const Text("Start in "),
+                                      Text(
+                                        cubit
+                                            .differentTimeMinutes(
+                                                TimeOfDay.now(), start!)
+                                            .toString(),
+                                        style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15),
+                                      ),
+                                      const Text(" min"),
+                                    ],
+                                  )
                             : Container(),
                       ],
                     ),
@@ -263,7 +303,8 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                           onPressed: () {
                             if (start == null || end == null) {
                               errorToast("Time can't be empty");
-                            } else if (cubit.differentTimeMinutes(start!, end!) <=
+                            } else if (cubit.differentTimeMinutes(
+                                    start!, end!) <=
                                 0) {
                               infoToast("End time can't be before start");
                             } else if (daysLeft == 0 &&
