@@ -112,6 +112,33 @@ class AppCubit extends Cubit<AppStates> {
     return difInMinutes;
   }
 
+  String minutesFormated(int total){
+    int minutes = 0;
+    int hours = 0;
+    int days = 0;
+
+    if(total < 60){
+      return '$total m';
+    }
+    else{
+      minutes = total % 60;
+      hours = ( (total - minutes ) / 60 ).ceil();
+    }
+
+    if( hours > 24 ){
+      int newHours = hours;
+
+      hours = hours % 24 ;
+      days = ((newHours - hours) / 24).ceil();
+      return '$hours h $minutes m';
+    }
+    else{
+      return '$hours h $minutes m';
+    }
+
+
+  }
+
   _notificationCallback(Map<String, dynamic> notificationData) async {
     thereNotification = true;
     emit(NewNotificationCome());

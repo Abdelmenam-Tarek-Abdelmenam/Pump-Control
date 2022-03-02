@@ -105,47 +105,44 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        Container(
-                          color: const Color(0xffECECEC),
-                          child: TableCalendar(
-                            headerStyle: const HeaderStyle(
-                                titleCentered: true,
-                              formatButtonVisible: false
-                            ),
-
-                            firstDay: DateTime.utc(now.year - 1, now.month, now.day),
-                            lastDay: DateTime.utc(now.year + 1, now.month, now.day),
-                            focusedDay: _focusedDay,
-                            startingDayOfWeek: StartingDayOfWeek.saturday,
-                            calendarFormat: CalendarFormat.month,
-
-                            calendarStyle:    const CalendarStyle(
-                              outsideDaysVisible: false,
-                               markerDecoration: BoxDecoration(color: Colors.black,shape: BoxShape.circle),
-                               selectedDecoration: BoxDecoration(color: Colors.blue,shape: BoxShape.circle),
-                               todayDecoration: BoxDecoration(color: Colors.blueGrey,shape: BoxShape.circle),
-                            ),
-
-                            eventLoader: (DateTime date) {
-                              return cubit.eventsData
-                                  .where((EventData element) =>
-                                      isSameDay(date, element.day))
-                                  .toList();
-                            },
-                            selectedDayPredicate: (day) =>
-                                isSameDay(_selectedDay, day),
-                            onDaySelected: (selectedDay, focusedDay) {
-                              if (!isSameDay(_selectedDay, selectedDay)) {
-                                setState(() {
-                                  _selectedDay = selectedDay;
-                                  _focusedDay = focusedDay;
-                                });
-                              }
-                            },
-                            onPageChanged: (focusedDay) {
-                              _focusedDay = focusedDay;
-                            },
+                        TableCalendar(
+                          headerStyle: const HeaderStyle(
+                              titleCentered: true,
+                            formatButtonVisible: false
                           ),
+
+                          firstDay: DateTime.utc(now.year - 1, now.month, now.day),
+                          lastDay: DateTime.utc(now.year + 1, now.month, now.day),
+                          focusedDay: _focusedDay,
+                          startingDayOfWeek: StartingDayOfWeek.saturday,
+                          calendarFormat: CalendarFormat.month,
+
+                          calendarStyle:    const CalendarStyle(
+                            outsideDaysVisible: false,
+                             markerDecoration: BoxDecoration(color: Colors.black,shape: BoxShape.circle),
+                             selectedDecoration: BoxDecoration(color: Colors.blue,shape: BoxShape.circle),
+                             todayDecoration: BoxDecoration(color: Colors.blueGrey,shape: BoxShape.circle),
+                          ),
+
+                          eventLoader: (DateTime date) {
+                            return cubit.eventsData
+                                .where((EventData element) =>
+                                    isSameDay(date, element.day))
+                                .toList();
+                          },
+                          selectedDayPredicate: (day) =>
+                              isSameDay(_selectedDay, day),
+                          onDaySelected: (selectedDay, focusedDay) {
+                            if (!isSameDay(_selectedDay, selectedDay)) {
+                              setState(() {
+                                _selectedDay = selectedDay;
+                                _focusedDay = focusedDay;
+                              });
+                            }
+                          },
+                          onPageChanged: (focusedDay) {
+                            _focusedDay = focusedDay;
+                          },
                         ),
                         dayTasks(cubit, _selectedDay ?? DateTime.now())
                       ],
@@ -161,245 +158,305 @@ class _HomeScreenState extends State<HomeScreen> {
     List<EventData> data = cubit.eventsData.where((EventData element) => isSameDay(date, element.day)).toList();
 
     int daysLeft = now.difference(date).inDays;
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: Container(
-            height: 30,
-            decoration: BoxDecoration(
-                color: Colors.black45,
-                borderRadius: BorderRadius.circular(10)),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                const Text(
-                  'Tasks',
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.white),
-                ),
-                Text(
-                  DateFormat('dd-MM-yyyy').format(date),
-                  style: const TextStyle(
-                      //fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: Colors.white),
-                ),
-                DefaultTextStyle(
-                  style: const TextStyle(
-                    color: Colors.white,
-                    //fontWeight: FontWeight.bold,
-                    fontSize: 18),
-                    child: daysLeft == 0?
-                    const Text(
-                      "[ Today ]",
-                    )
-                        :
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text("[ "),
-                        Text(
-                          "${daysLeft.abs()}",
-                        ),
-                        const Text(' Day'),
-                        Text(daysLeft.abs() == 1? "":"s" ),
-                        const Text(' left ]'),
-                      ],
-                    ),)
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 10,),
-        data.isEmpty
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(
-                    Icons.format_list_numbered,
-                    size: 40,
+    return Container(
+      color: const Color(0xffECECEC),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Container(
+              height: 30,
+              decoration: BoxDecoration(
+                  color: Colors.black45,
+                  borderRadius: BorderRadius.circular(10)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const Text(
+                    'Tasks',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.white),
                   ),
                   Text(
-                    "  No Tasks",
-                    style: TextStyle(fontSize: 20),
+                    DateFormat('dd-MM-yyyy').format(date),
+                    style: const TextStyle(
+                        //fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.white),
                   ),
+                  DefaultTextStyle(
+                    style: const TextStyle(
+                      color: Colors.white,
+                      //fontWeight: FontWeight.bold,
+                      fontSize: 18),
+                      child: daysLeft == 0?
+                      const Text(
+                        "[ Today ]",
+                      )
+                          :
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("[ "),
+                          Text(
+                            "${daysLeft.abs()}",
+                          ),
+                          const Text(' Day'),
+                          Text(daysLeft.abs() == 1? "":"s" ),
+                          const Text(' left ]'),
+                        ],
+                      ),)
                 ],
-              )
-            : ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemBuilder: (context, index) {
-                  EventData event = data[index];
-                  String formattedStart = event.startTime.format(context);
-                  String formattedEnd = event.endTime.format(context);
-
-                  return Dismissible(
-                    background: Container(
-                      color: Colors.red,
-                      child: const Icon(
-                        Icons.delete_outlined,
-                        color: Colors.white,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10,),
+          data.isEmpty
+              ? Container(): Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children:  [
+            Row(
+              children: const [
+                Icon(Icons.circle,size: 15,color: Colors.blue,),
+                SizedBox(width: 3,),
+                Text('Active'),
+              ],
+            )
+            ,Row(
+              children: const [
+                Icon(Icons.circle,size: 15,color: Colors.white,),
+                SizedBox(width: 3,),
+                Text('Waiting'),
+              ],
+            )
+            ,Row(
+              children: const [
+                Icon(Icons.circle,size: 15,color: Colors.grey,),
+                SizedBox(width: 3,),
+                Text('Ended'),
+              ],
+            ),
+          ],),
+          data.isEmpty
+              ? Padding(
+                padding: const EdgeInsets.all(40),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(
+                        Icons.format_list_numbered,
                         size: 40,
                       ),
-                    ),
-                    key: UniqueKey(),
-                    confirmDismiss: (_) async {
-                      if (event.state == EventState.running) {
-                        errorToast("Task is running");
-                        return Future.value(false);
-                      }
-                      return (await showDialog<bool?>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              title: const Text("Warning ..."),
-                              content: const Text(
-                                  "Are Tou Sure you wan't to delete the task"),
-                              actions: <Widget>[
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(false),
-                                  child: const Text("NO"),
-                                ),
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.of(context).pop(true),
-                                  child: const Text("YES"),
-                                ),
-                              ],
-                            ),
-                          )) ??
-                          false;
-                    },
-                    onDismissed: (_) {
-                      cubit.deleteTask(index: index, id: event.id);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Deleted successfully'),
-                        duration: Duration(seconds: 1),
-                      ));
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: ListTile(
-                        onTap: (){
-                          if(event.state == EventState.waiting){
-                            showModalBottomSheet(
-                              context: context,
-                              barrierColor: Colors.white.withOpacity(0.8),
-                              elevation: 20,
-                              isScrollControlled: true,
-                              //constraints: const BoxConstraints(maxHeight: 650),
-                              backgroundColor: Colors.white,
-                              builder: (context) => BottomSheetLayout(
-                                  event.day, true, index, event),
-                            );
-                          }
-                          },
-                        tileColor: {
-                          EventState.running: Colors.blue.withOpacity(0.3),
-                          EventState.waiting: Colors.white.withOpacity(0.5),
-                          EventState.done: Colors.grey.withOpacity(0.5)
-                        }[event.state],
-                        isThreeLine: true,
-                        leading: CircleAvatar(
-                          child: Text("${index + 1}"),
-                        ),
+                      Text(
+                        "  No Tasks",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ],
+                  ),
+              )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (context, index) {
+                    EventData event = data[index];
+                    String formattedStart = event.startTime.format(context);
+                    String formattedEnd = event.endTime.format(context);
 
-                        title: Text(event.description),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                                "Start at $formattedStart End at $formattedEnd"),
-                            Row(
-                              children: [
-                                const Text("Duration : "),
-                                Text(
-                                  "${cubit.differentTimeMinutes(event.startTime, event.endTime)}",
-                                  style: const TextStyle(
-                                      color: Colors.blue,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15),
-                                ),
-                                const Text(" min "),
-                              ],
-                            ),
-                            event.state == EventState.running
-                                ? Row(
-                                    children: [
-                                      const Text("End in "),
-                                      Text(
-                                        "${cubit.differentTimeMinutes(TimeOfDay.now(), event.endTime)}",
-                                        style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(" min"),
-                                    ],
-                                  )
-                                : Container(),
-                            event.state == EventState.waiting &&
-                                    isSameDay(now, event.day)
-                                ? Row(
-                                    children: [
-                                      const Text("Start in : "),
-                                      Text(
-                                        "${cubit.differentTimeMinutes(TimeOfDay.now(), event.startTime)}",
-                                        style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(" min"),
-                                    ],
-                                  )
-                                : Container(),
-                            event.state == EventState.done &&
-                                    isSameDay(now, event.day)
-                                ? Row(
-                                    children: [
-                                      const Text("Ended from : "),
-                                      Text(
-                                        "${cubit.differentTimeMinutes(event.endTime, TimeOfDay.now())}",
-                                        style: const TextStyle(
-                                          color: Colors.blue,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      const Text(" min"),
-                                    ],
-                                  )
-                                : Container(),
-                          ],
+                    return Dismissible(
+                      background: Container(
+                        color: Colors.red,
+                        child: const Icon(
+                          Icons.delete_outlined,
+                          color: Colors.white,
+                          size: 40,
                         ),
                       ),
-                    ),
-                  );
-                },
-                separatorBuilder: (_, __) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8),
-                    child: Divider(
-                      color: Colors.grey,
-                    ),
-                  );
-                },
-                itemCount: data.length),
-      ],
+                      key: UniqueKey(),
+                      confirmDismiss: (_) async {
+                        if (event.state == EventState.running) {
+                          errorToast("Task is running");
+                          return Future.value(false);
+                        }
+                        return (await showDialog<bool?>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: const Text("Warning"),
+                                content: const Text(
+                                    "Delete the Task ?"),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(false),
+                                    child: const Text("NO"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.of(context).pop(true),
+                                    child: const Text("YES"),
+                                  ),
+                                ],
+                              ),
+                            )) ??
+                            false;
+                      },
+                      onDismissed: (_) {
+                        cubit.deleteTask(index: index, id: event.id);
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('Deleted successfully'),
+                          duration: Duration(seconds: 1),
+                        ));
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: ListTile(
+                          onLongPress: () async {
+                              if (event.state == EventState.running) {
+                                if (await showDialog<bool?>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text("Warning"),
+                                    content: const Text(
+                                        "Force Delete ?"),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(false),
+                                        child: const Text("NO"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.of(context).pop(true),
+                                        child: const Text("YES"),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                    ?? false)
+                                {
+                                  cubit.deleteTask(index: index, id: event.id);
+                                  // cubit.editTask(
+                                  //     selectedDay: date,
+                                  //     start: event.startTime,
+                                  //     end: TimeOfDay.now(),
+                                  //     context: context,
+                                  //     index: index,
+                                  //     id: event.id);
+
+                                }
+                              }
+
+                          },
+                          onTap: (){
+                            if(event.state == EventState.waiting){
+                              showModalBottomSheet(
+                                context: context,
+                                barrierColor: Colors.white.withOpacity(0.8),
+                                elevation: 20,
+                                isScrollControlled: true,
+                                //constraints: const BoxConstraints(maxHeight: 650),
+                                backgroundColor: Colors.white,
+                                builder: (context) => BottomSheetLayout(
+                                    event.day, true, index, event),
+                              );
+                            }
+                            },
+                          isThreeLine: true,
+                          leading: CircleAvatar(
+                            backgroundColor: {
+                              EventState.running: Colors.blue[200],
+                              EventState.waiting: Colors.white.withOpacity(0.8),
+                              EventState.done: Colors.grey.withOpacity(0.5)
+                            }[event.state],
+                            child: Text("${index + 1}"),
+                          ),
+
+                          title: Text(event.description),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  "Start at $formattedStart End at $formattedEnd"),
+                              Row(
+                                children: [
+                                  const Text("Duration : "),
+                                  Text(
+                                    cubit.minutesFormated(cubit.differentTimeMinutes(event.startTime, event.endTime)),
+                                    style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                  ),
+
+                                ],
+                              ),
+                              event.state == EventState.running
+                                  ? Row(
+                                      children: [
+                                        const Text("End in "),
+                                        Text(
+                                          cubit.minutesFormated(cubit.differentTimeMinutes(TimeOfDay.now(), event.endTime)),
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+
+                                      ],
+                                    )
+                                  : Container(),
+                              event.state == EventState.waiting &&
+                                      isSameDay(now, event.day)
+                                  ? Row(
+                                      children: [
+                                        const Text("Start in : "),
+                                        Text(
+                                          cubit.minutesFormated(cubit.differentTimeMinutes(TimeOfDay.now(), event.startTime)),
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Container(),
+                              event.state == EventState.done &&
+                                      isSameDay(now, event.day)
+                                  ? Row(
+                                      children: [
+                                        const Text("Ended from : "),
+                                        Text(
+                                          cubit.minutesFormated(cubit.differentTimeMinutes(event.endTime, TimeOfDay.now())),
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+
+                                      ],
+                                    )
+                                  : Container(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (_, __) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8),
+                      child: Divider(
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
+                  itemCount: data.length),
+        ],
+      ),
     );
   }
 
-  /// force stop now
-  //  cubit.editTask(
-  //                             selectedDay: date,
-  //                             start: event.startTime,
-  //                             end: TimeOfDay.now(),
-  //                             context: context,
-  //                             index: index,
-  //                             id: event.id);
   Widget waterTank(double percentage) {
     return Padding(
       padding: const EdgeInsets.all(10),

@@ -195,7 +195,7 @@ class _BottomSheetLayoutState extends State<BottomSheetLayout> {
                                 setState(() {});
                               },
                               icon: const Icon(Icons.timer_off_outlined),
-                              label: const Text("end time")):
+                              label: const Text("End time")):
                           InkWell(
                             onTap: () async {
                               end = await _selectTime(context, end);
