@@ -2,17 +2,10 @@
 
 Water & pumps  tasks
 
+Application to control a water pump to work at certain times
 
 
-// TODO : Determine these information
-/// Event State
-/// done 
-// running
-// waiting
-/// Duration
-/// waiting time
-// now - date "if not today"
-// now - start "if today"
-/// done time
-// if running time run
-// time to stop
+
+<br>
+// TODO : connect to cloud
+<br>
